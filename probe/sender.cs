@@ -14,7 +14,6 @@ public string TimeStamp()
 
 public Program()
 {
-    Runtime.UpdateFrequency = UpdateFrequency.Update100;
     channel = "IRL.Scout.Channel";
     IMyBroadcastListener listen = IGC.RegisterBroadcastListener(channel);
 }
@@ -29,11 +28,11 @@ public void send(string msg)
 
 public void Main(string argument, UpdateType updateSource)
 {
-    IMyLaserAntenna ant = (IMyLaserAntenna)GridTerminalSystem.GetBlockWithName("Laser Antenna [Dro]");
-
+    IMyTextPanel input = (IMyTextPanel) GridTerminalSystem.GetBlockWithName("LCD Panel");
     StringBuilder sb = new StringBuilder("___SCOUT_LOG___").Append('\n');
     sb.Append("PB Address: ").Append(IGC.Me).Append('\n');
     sb.Append(TimeStamp()).Append('\n');
-    Echo(sb.ToString());
+    sb.Append("Radar Output:\n\n");
+    input.ReadText(sb, true);
     send(sb.ToString());
 }
