@@ -1,38 +1,35 @@
+string channel;
 public Program()
 {
     var comm = IGC.UnicastListener;
     Runtime.UpdateFrequency = UpdateFrequency.Update100;
-
-    IMyBroadcastListener listen = IGC.RegisterBroadcastListener("IRL.Scout.Channel");
+    channel = "IRL.Scout.Channel";
+    IMyBroadcastListener listen = IGC.RegisterBroadcastListener(channel);
 }
 
+public void append(string newText) {
+    IMyTextPanel log = (IMyTextPanel) GridTerminalSystem.GetBlockWithName("LogPanel");
+    StringBuilder sb = new StringBuilder("");
+    log.ReadText(sb);
+    if (sb.Length < newText.Length) {
+          log.WriteText(newText);
+    }
+}
 public void read(IMyUnicastListener unisource) {
     if (unisource.HasPendingMessage) {
         MyIGCMessage messageUni = unisource.AcceptMessage();
         Echo("Unicast received from address " + messageUni.Source.ToString() + "\n\r");
-        Echo("Data: " + messageUni.Data.ToString());
-    } else {
-        Echo($"No message found {unisource.HasPendingMessage}");
+        string data = messageUni.Data.ToString();
+        IMyTextPanel panel = (IMyTextPanel) GridTerminalSystem.GetBlockWithName("ReceiverPanel");
+        panel.WriteText(data);
+        append(data);
+        Echo(data);
     }
 }
 
 public void Main(string argument, UpdateType updateSource)
 {
-    IMySensorBlock sensor = (IMySensorBlock)GridTerminalSystem.GetBlockWithName("Detection.Sensor");
-    IMyTextPanel panel = (IMyTextPanel) GridTerminalSystem.GetBlockWithName("Detection.Input");
-    StringBuilder buff = new StringBuilder("", 300);
-    IMyTextPanel outPanel = (IMyTextPanel) GridTerminalSystem.GetBlockWithName("Detection.Output");
-
-    panel.ReadText(buff, true);
-    outPanel.WriteText(buff.ToString());
-
-
-    IMyLaserAntenna laser = (IMyLaserAntenna) GridTerminalSystem.GetBlockWithName("Detection.LaserAntenna");
-
-    IMyProgrammableBlock pb = (IMyProgrammableBlock) GridTerminalSystem.GetBlockWithName("Detection.ProgrammableBlock");
-    outPanel.WriteText($"Entity ID: {pb.EntityId}");
     IMyUnicastListener unisource = IGC.UnicastListener;
     Echo("Reading...\n");
     read(unisource);
-    reads();
 }
